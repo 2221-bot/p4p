@@ -6,6 +6,12 @@ async function getToken() {
   token = data.token;
 }
 
+async function loadCount() {
+  const res = await fetch("/count");
+  const data = await res.json();
+  document.getElementById("count").innerText = data.count;
+}
+
 async function sign() {
   const name = document.getElementById("name").value.trim();
   const studentClass = document.getElementById("class").value.trim();
@@ -32,7 +38,7 @@ async function sign() {
   });
 
   if (res.status === 403) {
-    alert("Bot detected");
+    alert("Już podpisałeś lub błąd");
     return;
   }
 
@@ -44,7 +50,11 @@ async function sign() {
   document.getElementById("name").value = "";
   document.getElementById("class").value = "";
 
-  console.log("OK podpis");
+  loadCount();
+  getToken();
 }
 
-getToken();
+document.addEventListener("DOMContentLoaded", () => {
+  loadCount();
+  getToken();
+});
