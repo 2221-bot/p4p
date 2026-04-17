@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P4P</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #0f0f0f;
+  color: white;
+}
+
+.header {
+  background: #ff4500;
+  text-align: center;
+  padding: 14px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.container {
+  max-width: 700px;
+  margin: 20px auto;
+  padding: 10px;
+}
+
+.card {
+  background: #1a1a1b;
+  border-radius: 8px;
+  padding: 15px;
+  border: 1px solid #333;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.text-box {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #333;
+  background: #111;
+  border-radius: 6px;
+  line-height: 1.5;
+}
+
+.text-box ul {
+  padding-left: 20px;
+}
+
+.counter {
+  margin-top: 10px;
+  color: #aaa;
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #0f0f0f;
+  color: white;
+}
+
+.button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px;
+  background: #ff4500;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #e03d00;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">P4P</div>
+
+<div class="container">
+
+  <div class="card">
+
+    <div class="title">
+      Petycja dotycząca dostępu do toalet szkolnych
+    </div>
+
+    <div class="text-box">
+      <b>Petycja dotycząca dostępu do toalet szkolnych</b><br><br>
+
+      My, uczniowie szkoły, zwracamy się z prośbą o zapewnienie stałego dostępu do toalet szkolnych, w szczególności toalet męskich.<br><br>
+
+      Znaczna część uczniów jest niezadowolona z sytuacji, w której toalety są regularnie zamykane.<br><br>
+
+      Rozumiemy, że powodem zamykania toalet jest niewłaściwe zachowanie niektórych uczniów. Jednak obecne rozwiązanie dotyka wszystkich.<br><br>
+
+      Problem istnieje od dawna i wymaga rozwiązania, a nie tylko tymczasowych działań.<br><br>
+
+      Zamykanie toalet powoduje:
+      <ul>
+        <li>chodzenie na inne piętra,</li>
+        <li>brak czasu podczas przerw,</li>
+        <li>dyskomfort podczas zajęć.</li>
+      </ul>
+
+      Wszyscy podpisujący pozostają anonimowi.<br><br>
+
+      Prosimy o rozwiązanie problemu i zapewnienie dostępu do toalet.<br><br>
+
+      Z poważaniem,<br>
+      Uczniowie Szkoła Podstawowa nr 4 w Markach
+    </div>
+
+    <div class="counter">
+      Podpisali: <span id="count">0</span>
+    </div>
+
+    <input class="input" id="name" placeholder="Imię">
+    <input class="input" id="class" placeholder="Klasa">
+
+    <button class="button" onclick="sign()">Podpisz petycję</button>
+
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
