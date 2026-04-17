@@ -18,6 +18,7 @@ if (!fs.existsSync(FILE)) {
   fs.writeFileSync(FILE, "[]");
 }
 
+// 🔐 Шифрование
 function encrypt(text) {
   const cipher = crypto.createCipher("aes-256-cbc", SECRET);
   let encrypted = cipher.update(text, "utf8", "hex");
@@ -32,33 +33,39 @@ function decrypt(text) {
   return decrypted;
 }
 
-function generateToken(ip) {
+// 🧠 анти-бот токен
+function generateToken() {
   const token = crypto.randomBytes(16).toString("hex");
-  TOKENS[token] = { ip, time: Date.now() };
+  TOKENS[token] = Date.now();
   return token;
 }
 
 app.get("/token", (req, res) => {
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
-  const token = generateToken(ip);
+  const token = generateToken();
   res.json({ token });
 });
 
+// ✍️ подпись
 app.post("/sign", (req, res) => {
-  const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+  const ip =
+    req.headers["x-forwarded-for"] ||
+    req.socket.remoteAddress;
+
   const { name, studentClass, token } = req.body;
 
   if (!name || !studentClass || !token) {
     return res.status(400).send("error");
   }
 
-  if (!TOKENS[token] || TOKENS[token].ip !== ip) {
+  // ✅ фикс анти-бота (без проверки IP)
+  if (!TOKENS[token]) {
     return res.status(403).send("bot detected");
   }
 
   delete TOKENS[token];
 
-  if (LIMIT[ip] && Date.now() - LIMIT[ip] < 15000) {
+  // 🚫 защита от спама
+  if (LIMIT[ip] && Date.now() - LIMIT[ip] < 10000) {
     return res.status(429).send("too fast");
   }
 
@@ -80,6 +87,7 @@ app.post("/sign", (req, res) => {
   res.send("ok");
 });
 
+// 🔐 логин админа
 app.post("/admin-login", (req, res) => {
   const { password } = req.body;
 
@@ -94,6 +102,7 @@ app.post("/admin-login", (req, res) => {
   res.json({ token });
 });
 
+// 👀 данные для админа
 app.get("/admin-data", (req, res) => {
   const auth = req.headers.authorization;
 
@@ -122,6 +131,7 @@ app.get("/admin-data", (req, res) => {
   }
 });
 
+// 🚀 запуск
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
