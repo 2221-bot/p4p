@@ -18,7 +18,6 @@ if (!fs.existsSync(FILE)) {
   fs.writeFileSync(FILE, "[]");
 }
 
-// 🔐 Шифрование
 function encrypt(text) {
   const cipher = crypto.createCipher("aes-256-cbc", SECRET);
   let encrypted = cipher.update(text, "utf8", "hex");
@@ -33,7 +32,6 @@ function decrypt(text) {
   return decrypted;
 }
 
-// 🧠 анти-бот токен
 function generateToken() {
   const token = crypto.randomBytes(16).toString("hex");
   TOKENS[token] = Date.now();
@@ -41,11 +39,15 @@ function generateToken() {
 }
 
 app.get("/token", (req, res) => {
-  const token = generateToken();
-  res.json({ token });
+  res.json({ token: generateToken() });
 });
 
-// ✍️ подпись
+// 🔢 СЧЁТЧИК
+app.get("/count", (req, res) => {
+  const data = JSON.parse(fs.readFileSync(FILE));
+  res.json({ count: data.length });
+});
+
 app.post("/sign", (req, res) => {
   const ip =
     req.headers["x-forwarded-for"] ||
@@ -57,14 +59,12 @@ app.post("/sign", (req, res) => {
     return res.status(400).send("error");
   }
 
-  // 🧠 анти-бот
   if (!TOKENS[token]) {
     return res.status(403).send("bot detected");
   }
 
   delete TOKENS[token];
 
-  // ⏱ анти-спам (10 сек)
   if (LIMIT[ip] && Date.now() - LIMIT[ip] < 10000) {
     return res.status(429).send("too fast");
   }
@@ -73,7 +73,6 @@ app.post("/sign", (req, res) => {
 
   const data = JSON.parse(fs.readFileSync(FILE));
 
-  // 🚫 только 1 подпись с IP
   if (data.find(d => d.ip === ip)) {
     return res.status(403).send("already signed");
   }
@@ -92,11 +91,9 @@ app.post("/sign", (req, res) => {
   res.send("ok");
 });
 
-// 🔐 логин админа
+// 🔐 админ
 app.post("/admin-login", (req, res) => {
-  const { password } = req.body;
-
-  if (password !== "P4P_secure_9Xk2!admin") {
+  if (req.body.password !== "P4P_secure_9Xk2!admin") {
     return res.status(403).send("wrong");
   }
 
@@ -107,38 +104,29 @@ app.post("/admin-login", (req, res) => {
   res.json({ token });
 });
 
-// 👀 админ данные
 app.get("/admin-data", (req, res) => {
   const auth = req.headers.authorization;
-
   if (!auth) return res.status(401).send("no token");
 
   try {
     const decoded = jwt.verify(auth.split(" ")[1], JWT_SECRET);
 
-    if (decoded.role !== "admin") {
-      return res.status(403).send("forbidden");
-    }
-
     const data = JSON.parse(fs.readFileSync(FILE));
 
-    const result = data.map(d => ({
-      name: decrypt(d.name),
-      studentClass: decrypt(d.studentClass),
-      ip: d.ip,
-      date: d.date
-    }));
-
-    res.json(result);
-
+    res.json(
+      data.map(d => ({
+        name: decrypt(d.name),
+        studentClass: decrypt(d.studentClass),
+        ip: d.ip,
+        date: d.date
+      }))
+    );
   } catch {
     res.status(403).send("invalid token");
   }
 });
 
-// 🚀 запуск
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });
