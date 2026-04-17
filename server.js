@@ -57,14 +57,14 @@ app.post("/sign", (req, res) => {
     return res.status(400).send("error");
   }
 
-  // ✅ фикс анти-бота (без проверки IP)
+  // 🧠 анти-бот
   if (!TOKENS[token]) {
     return res.status(403).send("bot detected");
   }
 
   delete TOKENS[token];
 
-  // 🚫 защита от спама
+  // ⏱ анти-спам (10 сек)
   if (LIMIT[ip] && Date.now() - LIMIT[ip] < 10000) {
     return res.status(429).send("too fast");
   }
@@ -72,6 +72,11 @@ app.post("/sign", (req, res) => {
   LIMIT[ip] = Date.now();
 
   const data = JSON.parse(fs.readFileSync(FILE));
+
+  // 🚫 только 1 подпись с IP
+  if (data.find(d => d.ip === ip)) {
+    return res.status(403).send("already signed");
+  }
 
   data.push({
     name: encrypt(name),
@@ -102,7 +107,7 @@ app.post("/admin-login", (req, res) => {
   res.json({ token });
 });
 
-// 👀 данные для админа
+// 👀 админ данные
 app.get("/admin-data", (req, res) => {
   const auth = req.headers.authorization;
 
