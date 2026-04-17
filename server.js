@@ -18,6 +18,13 @@ if (!fs.existsSync(FILE)) {
   fs.writeFileSync(FILE, "[]");
 }
 
+// норм IP (важно для Render)
+function getIP(req) {
+  let ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+  if (ip && ip.includes(",")) ip = ip.split(",")[0];
+  return ip;
+}
+
 function encrypt(text) {
   const cipher = crypto.createCipher("aes-256-cbc", SECRET);
   let encrypted = cipher.update(text, "utf8", "hex");
@@ -42,16 +49,14 @@ app.get("/token", (req, res) => {
   res.json({ token: generateToken() });
 });
 
-// 🔢 СЧЁТЧИК
+// счётчик
 app.get("/count", (req, res) => {
   const data = JSON.parse(fs.readFileSync(FILE));
   res.json({ count: data.length });
 });
 
 app.post("/sign", (req, res) => {
-  const ip =
-    req.headers["x-forwarded-for"] ||
-    req.socket.remoteAddress;
+  const ip = getIP(req);
 
   const { name, studentClass, token } = req.body;
 
@@ -71,8 +76,9 @@ app.post("/sign", (req, res) => {
 
   LIMIT[ip] = Date.now();
 
-  const data = JSON.parse(fs.readFileSync(FILE));
+  let data = JSON.parse(fs.readFileSync(FILE));
 
+  // защита 1 IP = 1 подпись
   if (data.find(d => d.ip === ip)) {
     return res.status(403).send("already signed");
   }
@@ -91,7 +97,7 @@ app.post("/sign", (req, res) => {
   res.send("ok");
 });
 
-// 🔐 админ
+// админ
 app.post("/admin-login", (req, res) => {
   if (req.body.password !== "P4P_secure_9Xk2!admin") {
     return res.status(403).send("wrong");
@@ -109,7 +115,7 @@ app.get("/admin-data", (req, res) => {
   if (!auth) return res.status(401).send("no token");
 
   try {
-    const decoded = jwt.verify(auth.split(" ")[1], JWT_SECRET);
+    jwt.verify(auth.split(" ")[1], JWT_SECRET);
 
     const data = JSON.parse(fs.readFileSync(FILE));
 
