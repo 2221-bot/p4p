@@ -50,11 +50,11 @@ async function sign() {
   document.getElementById("name").value = "";
   document.getElementById("class").value = "";
 
-  loadCount();
-  getToken();
+  await loadCount();
+  await getToken();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  loadCount();
-  getToken();
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadCount();
+  await getToken();
 });
